@@ -1,28 +1,48 @@
 import std.stdio;
 import std.algorithm;
 import std.array;
+import std.mmfile;
 
-/// Put game information in a folder called "raw"
-// enum START = 0x07_3382;
+enum offsets_start  = 0x71CC8;
+enum data_start     = 0x73382;
+enum data_end       = 0x7C7BC;
+
 
 void main() {
-    ushort[] offsets = get_offsets_0x73382_isolated();
-    char[] table_data = get_data_0x73382_isolated();
+    ushort[] offsets;
+    char[] table_data;
+    {
+        File f = File("raw/en_oos.gbc", "rb");
+        offsets    = f.array_from_file!(ushort, offsets_start, data_start);//.sort().array;
+        table_data = f.array_from_file!(char,   data_start,    data_end  );
+        f.close();
+    }
 
     File output_file = File("info.txt", "wb");
 
-
-    foreach(ch, o; offsets) {
+    foreach(index, o; offsets[1..$]) {
         char[] text = [];
-        auto i = o;
-        while (table_data[i] != '\0') {
-            i += 1;
-            text = table_data[o..i];
+        auto j = o;
+        while (table_data[j] != '\0') {
+            j += 1;
+            text = table_data[o..j];
         }
-        output_file.writefln("$%X:\n%s\n", i, text);
+        output_file.writefln("$%X:\n%s\n", index, text);
     }
+    writefln("File has been dumped to \"%s\".", output_file.name);
 }
 
+
+auto array_from_file(E, size_t start, size_t stop)(ref File file) {
+    static assert(stop > start);
+    enum section_size = stop-start;
+    static assert(section_size%E.sizeof == 0);
+
+    E[] output_array = new E[section_size/E.sizeof];
+    file.seek(start);
+    output_array = file.rawRead!E(output_array);
+    return output_array;
+}
 
 
 /++ 

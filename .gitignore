@@ -10,6 +10,7 @@ oracle_dump.a
 oracle_dump.lib
 oracle_dump-test-*
 /raw/*
+!/raw/readme
 *.exe
 *.o
 *.obj
