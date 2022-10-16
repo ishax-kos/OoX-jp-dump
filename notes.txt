@@ -1,0 +1,38 @@
+Japanese
+the glyph table starts at 0x06FF20.
+97 6A 81 6F 78 77
+20 77 80 93 
+
+20 9E 93 
+
+English
+the glyph table starts at 0x070720.
+
+"Accept our 
+quest hero!"
+"Accept "
+04 65 - our
+03 F3 - quest ? $1D 7441e
+","
+03 3D - hero ? $1C 73F01
+"!" 00
+
+"Accept " at $78D54 == bank $1E offset $0D54
+"our "
+
+
+start of a text lookup table 71CC8
+the actual text chunks start at 73382
+00 00, 13 00, 26 00, 33 00, 40 00, 4D 00, 5F 00, 6B 00
+0      19     19     13     13     13     18     12
+
+##OK ##No thanks
+Princess Zelda 
+##Yes ##No
+You got the
+##Labrynna
+My books tell me
+ ##secret
+##Yes ##Not really
+ 
+ I'll trade for..Ore Chunks...ee hee hee hee!.Hohhm...ZZZ....Sword damage ...Zelda.....Gasha Seed...Twinrova.....secret...Thank you.You got ... ..rings...Horon Village.Damage taken .Want to learn...Holodrum...

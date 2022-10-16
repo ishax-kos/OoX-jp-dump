@@ -1,0 +1,3 @@
+name "oracle_dump"
+description "A text dump generator for japanese oracle of ages and seasons."
+authors "Isaac"

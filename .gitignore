@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/oracle_dump
+oracle_dump.so
+oracle_dump.dylib
+oracle_dump.dll
+oracle_dump.a
+oracle_dump.lib
+oracle_dump-test-*
+/raw/*
+*.exe
+*.o
+*.obj
+*.lst
