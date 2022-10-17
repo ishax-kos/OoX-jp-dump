@@ -11,18 +11,19 @@ the glyph table starts at 0x070720.
 "Accept our 
 quest hero!"
 "Accept "
-04 65 - our
-03 F3 - quest ? $1D 7441e
+04 65 - our (74728)
+03 F3 - quest ($1D, 7441E).. 1F3 = actual index. Diff $200
 ","
-03 3D - hero ? $1C 73F01
+03 3D - hero ($1C, 73F01).. 13D = actual index. Diff $200
 "!" 00
 
 "Accept " at $78D54 == bank $1E offset $0D54
 "our "
 
-
+(73382-71CC8)/2
 start of a text lookup table 71CC8
 the actual text chunks start at 73382
+it ends at $7C7BC
 00 00, 13 00, 26 00, 33 00, 40 00, 4D 00, 5F 00, 6B 00
 0      19     19     13     13     13     18     12
 
