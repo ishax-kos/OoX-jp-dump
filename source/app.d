@@ -14,10 +14,10 @@ ushort[] offsets;
 
 void main() {
     File f = File("raw/en_oos.gbc", "rb");
-    offsets = f.array_from_file!(ushort, offsets_start, data_start); //.sort().array;
+    offsets           = f.array_from_file!(ushort, offsets_start, data_start); //.sort().array;
     char[] table_data = f.array_from_file!(char, data_start, data_end);
     f.close();
-    writefln("Found $%X entries.", offsets.length);
+    writefln("Found %d entries.", offsets.length);
 
     File output_file = File("info.txt", "wb");
 
@@ -30,7 +30,6 @@ void main() {
     }
     writefln("File has been dumped to \"%s\".", output_file.name);
 }
-
 
 auto array_from_file(E, size_t start, int stop)(ref File file) {
     static assert(stop > start);
@@ -67,11 +66,10 @@ char[] get_data_0x73382_isolated() {
     return table_data;
 }
 
-
 string get_string(const char[] table_data, int offset) {
     string text = "";
     int j = offset;
-    while (table_data[j] != 0) {
+    while (table_data[j] != 0x0) {
         auto codepoint = parse_codepoint_usa(table_data, j);
         text ~= codepoint;
         j += 1;
@@ -79,65 +77,142 @@ string get_string(const char[] table_data, int offset) {
     return text;
 }
 
-
 string parse_codepoint_usa(const char[] table_data, ref int offset) {
     // writeln(offset);
+    char ch0 = table_data[offset];
     char ch = table_data[offset];
     switch (ch) {
-        case 0x00: assert(0, "Value cannot be $00!");
-        case 0x02: .. case 0x06: {
+        case 0x00:
+            assert(0, "Value cannot be $00!");
+        case 0x01:
+            return "\n";
+        case 0x02: .. case 0x05: {
             offset += 1;
-            return table_data.get_string(offsets[
-                ( (ch-2) << 8 ) | table_data[offset]
+            return //format!"{%02X:%s}"(ch0, 
+            table_data.get_string(offsets[
+                ((ch - 2) << 8) | table_data[offset]
             ]);
+            //);
         }
+         
+        case 0x06: { /// Special characters
+            offset += 1;
+            // goto case 0x02;
+            return "[Picture]";
+        }
+        case 0x07: return ""; // No idea
+        case 0x08: { /// Branch
+            offset += 1;
+            switch (table_data[offset]) {
+                case 0x0F:
+                    return "[if yes, go to next]";
+                case 0x0D:
+                    return "[if yes, go to one after next]";
+                default:
+                    return format!"[if idk $%02X]"(table_data[offset]);
+            }
+            
+        }
+        
         case 0x09: { /// Color
             offset += 1;
             return "";
             // return format!"[color $%X]"(table_data[offset]);
+        }
+        case 0x0A: {
+            offset += 1;
+            switch (table_data[offset]) {
+                case 0x00: return "Link";
+                case 0x02: return "[secret]";
+                default: return format!"[preset %02X]"(table_data[offset]);
+            }
+        }
+        case 0x0B: {
+            ///Check condition first
+            offset += 1;
+            // goto case 0x02;
+            return format!"[$%02X, $%02X?]"(ch, table_data[offset]);
         }
         case 0x0C: { /// Selections
             offset += 1;
             return "[]";
             // return format!"[option $%02X]"(table_data[offset]);
         }
+        
+        case 0x0D: { /// Some kind of branch label?
+            offset += 1;
+            return "";
+        }
+        case 0x0E: { /// Play a sound probably. shows up in item get and ricky's dialogue.
+            offset += 1;
+            return "";
+        }
+        case 0x0F: /// No idea but its not for strings.
+        { // Double
+            offset += 1;
+            return "";
+        }
+
+        case 0x10:
+            return "●";
+        case 0x11:
+            return "♣";
+        case 0x12:
+            return "♦";
+        case 0x13:
+            return "♠";
+        case 0x14:
+            return "♥";
+        case 0x15:
+            return "↑";
+        case 0x16:
+            return "↓";
+        case 0x17:
+            return "←";
+
+        case 0x18:
+            return "→";
+        case 0x19:
+            return "×";
+        case 0x1A:
+            return "“";
+        case 0x1B:
+            return "「";
+        case 0x1C:
+            return "」";
+        case 0x1D:
+            return "．";
+        case 0x1E:
+            return "、";
+        case 0x1F:
+            return "。";
+
+        case 0x22:
+            return "”";
 
         case 0x91: .. case 0x9F:
         case 0xB1: .. case 0xB7:
-        case 0xBC: 
+        case 0xBC:
         case 0xBE: .. case 0xFF: {
             return format!"[$%02X?]"(ch);
         }
 
-        case 0x01: return "\\ ";
+        case 0xB8: {
+            if (table_data[offset+1] == 0xB9) {
+                offset += 1;
+                return "(A)";
+            } else {return "(A";}
+        }
 
-        case 0x10: return "●";
-        case 0x11: return "♣";
-        case 0x12: return "♦";
-        case 0x13: return "♠";
-        case 0x14: return "♥";
-        case 0x15: return "↑";
-        case 0x16: return "↓";
-        case 0x17: return "←";
-
-        case 0x18: return "→";
-        case 0x19: return "×";
-        case 0x1A: return "“";
-        case 0x1B: return "「";
-        case 0x1C: return "」";
-        case 0x1D: return "．";
-        case 0x1E: return "、";
-        case 0x1F: return "。";
-
-        case 0x22: return "”";
+        case 0xBA: {
+            if (table_data[offset+1] == 0xBC) {
+                offset += 1;
+                return "(B)";
+            } else {return "(B";}
+        }
 
         default: {
-            if (ch < 0x10) {
-                return format!"[$%02X?]"(ch);
-            } else {
-                return format!"%s"(ch);
-            }
+            return format!"%s"(ch);
         }
     }
 }
-
