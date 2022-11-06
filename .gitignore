@@ -17,3 +17,4 @@ oracle_dump-test-*
 *.lst
 info.txt
 oracle_dump.pdb
+dump.txt

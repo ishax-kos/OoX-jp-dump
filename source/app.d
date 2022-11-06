@@ -19,7 +19,7 @@ void main() {
     f.close();
     writefln("Found %d entries.", offsets.length);
 
-    File output_file = File("info.txt", "wb");
+    File output_file = File("dump.txt", "wb");
 
     foreach (index, o; offsets) {
         output_file.writefln("%d: at $%06X\n%s\n",
